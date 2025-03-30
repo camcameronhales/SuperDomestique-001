@@ -1,0 +1,6 @@
+name = "super-domestique-worker"
+main = "src/worker/index.ts"
+compatibility_date = "2024-03-06"
+
+[site]
+bucket = "./dist"

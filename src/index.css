@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* The container for both lines, sized exactly like the .max-w-7xl area */
+.lines-container {
+  position: absolute; 
+  top: 0; 
+  left: 50%; 
+  transform: translateX(-50%);
+  width: 100%; 
+  height: 100%;
+  z-index: 0; /* behind the tiles */
+  overflow: hidden;
+}
+
+/* Each line is absolutely anchored at 50% (the container’s center) */
+.line-left,
+.line-right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 300px;  /* adjust to your line image size */
+  height: 300px; /* adjust to your line image size */
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* The left line: anchor its right edge at center */
+.line-left {
+  left: 50%;
+  transform: translate(-100%, -50%);
+  /* For testing, bright pink square:
+     background-image: url('https://dummyimage.com/300x300/ff00ff/fff.png?text=Left+Line');
+  */
+  background-image: url('/lines/line-left.png'); /* or a real Supabase URL */
+}
+
+/* The right line: anchor its left edge at center */
+.line-right {
+  left: 50%;
+  transform: translate(0, -50%);
+  /* For testing, bright cyan square:
+     background-image: url('https://dummyimage.com/300x300/00ffff/000.png?text=Right+Line');
+  */
+  background-image: url('/lines/line-right.png'); /* or a real Supabase URL */
+}
