@@ -5,9 +5,13 @@ interface ServiceCardProps {
   title: React.ReactNode;
   description: string;
   backgroundImage?: string;
+  buttons?: Array<{
+    label: string;
+    onClick: () => void;
+  }>;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, backgroundImage }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, backgroundImage, buttons }) => {
   const isDrivetrain = title === 'Drivetrain Efficiency';
   const isElectronic = title === 'Electronic Groupsets';
 
@@ -30,16 +34,31 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, bac
       
       <div className="relative z-10 flex flex-col h-full">
         {/* Title - Initially transparent, fades in on hover */}
-        <h3 className="text-xl font-light mb-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <h3 className="text-xl font-light mb-4 text-brand-gold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           {title}
         </h3>
         
         {/* Description - Fades in on hover */}
         <div className="flex-grow">
-          <p className={`${backgroundImage ? 'text-brand-blue group-hover:text-gray-200' : 'text-gray-600'} transform translate-y-4 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300`}>
+          <p className="text-brand-gold transform translate-y-4 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
             {description}
           </p>
         </div>
+
+        {/* Buttons - If provided */}
+        {buttons && buttons.length > 0 && (
+          <div className="mt-4 space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            {buttons.map((button, index) => (
+              <button
+                key={index}
+                onClick={button.onClick}
+                className="w-full px-4 py-1 border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-blue transition-all duration-300 text-sm"
+              >
+                {button.label}
+              </button>
+            ))}
+          </div>
+        )}
         
         {/* Icon with background panel - Fades out on hover */}
         <div className="mt-auto self-start relative">

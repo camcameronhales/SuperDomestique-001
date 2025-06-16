@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
   const backgroundImages = [
@@ -20,20 +21,19 @@ const Hero = () => {
   ];
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const navigate = useNavigate();
   
   useEffect(() => {
     const interval = setInterval(() => {
-      // Simply increment the index and loop back to the beginning when reaching the end
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % backgroundImages.length);
-    }, 5000); // 5 seconds between transitions
+    }, 5000);
     
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
 
   return (
-    <div className="relative pt-24">
+    <div className="relative pt-20 sm:pt-24">
       <div className="absolute inset-0 z-0 h-[600px] overflow-hidden">
-        {/* Current image - no transition, just direct cut */}
         <div 
           className="absolute inset-0"
           style={{
@@ -43,17 +43,28 @@ const Hero = () => {
           }}
         />
         
-        {/* Overlay */}
         <div className="absolute inset-0 bg-brand-blue bg-opacity-80"></div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 py-4 md:py-12">
-        <div className="max-w-3xl">
-          <h1 className="text-4xl md:text-6xl font-light text-brand-gold leading-tight">
-            PRECISION<br />
-            CRAFTED<br />
-            SERVICE
-          </h1>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-4 md:py-8">
+        <div className="flex flex-col md:flex-row justify-between">
+          <div className="flex-shrink-0 pt-4 sm:pt-0">
+            <div className="space-y-6">
+              <h1 className="text-4xl md:text-6xl font-light text-brand-gold leading-tight">
+                DEDICATED<br />
+                TO SERVICE
+              </h1>
+              <button 
+                onClick={() => navigate('/booking')}
+                className="text-sm px-12 py-3 border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-blue transition-all duration-300"
+              >
+                BOOK WORKSHOP
+              </button>
+            </div>
+          </div>
+          <div className="md:w-[600px] mt-6 md:mt-0">
+            <p className="text-brand-gold text-lg leading-relaxed text-right">At Super Domestique, it's not just about fixing bikes, it's about elevating every ride. Whether you're chasing podiums, town sign sprints, or cruising for the pure joy of it, I treat every bike like it's my own, applying a meticulous, quality-driven approach to every service. I stay ahead of the curve on gear, brands, and trends so you don't have to. Book a service. Feel the difference. Ride with confidence.</p>
+          </div>
         </div>
       </div>
     </div>
