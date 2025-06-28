@@ -194,47 +194,178 @@ const ServiceTicketModal: React.FC<ServiceTicketModalProps> = ({
     return serviceCost + partsTotal;
   };
 
-  const generatePDF = async () => {
-    setIsGeneratingPDF(true);
-    try {
-      const element = document.getElementById('service-ticket-content');
-      if (!element) return;
+const generatePDF = async () => {
+  setIsGeneratingPDF(true);
+  try {
+    const element = document.getElementById('service-ticket-content');
+    if (!element) return;
 
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#1A2B4C'
-      });
+    // Add small delay to ensure all content is rendered
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      const imgWidth = 210;
-      const pageHeight = 295;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      const fileName = `service-ticket-${clientName.replace(/\s+/g, '-')}-${serviceDate}.pdf`;
-      pdf.save(fileName);
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      setError('Failed to generate PDF');
-    } finally {
-      setIsGeneratingPDF(false);
+    // Generate canvas with better text rendering for PDF
+    const canvas = await html2canvas(element, {
+      scale: 1.5, // Higher scale for better text quality
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#1A2B4C',
+      logging: false,
+      scrollX: 0,
+      scrollY: 0,
+      height: element.scrollHeight,
+      width: element.scrollWidth,
+      onclone: (clonedDoc) => {
+        const clonedElement = clonedDoc.getElementById('service-ticket-content');
+        if (clonedElement) {
+          // Ensure full content is visible
+          clonedElement.style.height = 'auto';
+          clonedElement.style.overflow = 'visible';
+          clonedElement.style.backgroundColor = '#1A2B4C';
+          clonedElement.style.color = 'white';
+          clonedElement.style.padding = '20px';
+          
+          // Replace all form inputs with styled text for PDF
+const inputs = clonedElement.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], select');
+inputs.forEach(input => {
+  let displayValue = input.value || input.getAttribute('value') || '';
+  
+  // Special handling for bike selection dropdown
+  if (input.tagName === 'SELECT' && displayValue && displayValue === selectedBike) {
+    const selectedBikeData = bikes.find(bikeItem => bikeItem.id === selectedBike);
+    if (selectedBikeData) {
+      displayValue = `${selectedBikeData.make} ${selectedBikeData.model} (${selectedBikeData.year})`;
     }
-  };
+  }
+  
+  if (displayValue.trim()) {
+    const textDiv = clonedDoc.createElement('div');
+    textDiv.textContent = displayValue; // Now shows bike name instead of ID
+    textDiv.style.cssText = `
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid #D4AF37;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: Arial, sans-serif;
+      min-height: 16px;
+      line-height: 1.2;
+      border-radius: 2px;
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+    `;
+    input.parentNode.replaceChild(textDiv, input);
+  } else {
+    // Empty field - show placeholder style
+    const textDiv = clonedDoc.createElement('div');
+    textDiv.textContent = '';
+    textDiv.style.cssText = `
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #666;
+      padding: 6px 8px;
+      font-size: 12px;
+      min-height: 16px;
+      border-radius: 2px;
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+    `;
+    input.parentNode.replaceChild(textDiv, input);
+  }
+});
+
+          // Replace textareas with styled text divs
+          const textareas = clonedElement.querySelectorAll('textarea');
+          textareas.forEach(textarea => {
+            const value = textarea.value || textarea.textContent || '';
+            const textDiv = clonedDoc.createElement('div');
+            textDiv.textContent = value;
+            textDiv.style.cssText = `
+              color: white;
+              background: rgba(255, 255, 255, 0.1);
+              border: 1px solid #D4AF37;
+              padding: 8px;
+              font-size: 12px;
+              font-family: Arial, sans-serif;
+              line-height: 1.4;
+              border-radius: 2px;
+              white-space: pre-wrap;
+              word-wrap: break-word;
+              min-height: 60px;
+              width: 100%;
+              box-sizing: border-box;
+            `;
+            textarea.parentNode.replaceChild(textDiv, textarea);
+          });
+
+          // Style checkboxes and radio buttons for PDF
+          const checkboxes = clonedElement.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+          checkboxes.forEach(checkbox => {
+            const isChecked = checkbox.checked;
+            const checkDiv = clonedDoc.createElement('div');
+            
+            if (checkbox.type === 'checkbox') {
+              checkDiv.textContent = isChecked ? '✓' : '☐';
+            } else {
+              checkDiv.textContent = isChecked ? '●' : '○';
+            }
+            
+            checkDiv.style.cssText = `
+              display: inline-block;
+              width: 16px;
+              height: 16px;
+              border: 1px solid #D4AF37;
+              background: ${isChecked ? '#D4AF37' : 'rgba(255, 255, 255, 0.1)'};
+              color: ${isChecked ? '#1A2B4C' : '#D4AF37'};
+              text-align: center;
+              line-height: 14px;
+              font-size: 12px;
+              font-weight: bold;
+              border-radius: 2px;
+              margin-right: 8px;
+              flex-shrink: 0;
+            `;
+            checkbox.parentNode.replaceChild(checkDiv, checkbox);
+          });
+
+          // Hide any remaining buttons or interactive elements
+          const buttons = clonedElement.querySelectorAll('button, .sticky');
+          buttons.forEach(button => {
+            button.style.display = 'none';
+          });
+        }
+      }
+    });
+
+    // Create PDF with dynamic height to fit all content on one page
+    const imgWidth = 210; // A4 width in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    // Use dynamic page height to fit all content
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: [210, Math.max(297, imgHeight + 20)], // Dynamic height, minimum A4
+      compress: true
+    });
+
+    // Convert to JPEG for smaller file size
+    const imgData = canvas.toDataURL('image/jpeg', 0.8);
+    
+    // Add image to PDF with margins to prevent cutoff
+    pdf.addImage(imgData, 'JPEG', 5, 10, imgWidth - 10, imgHeight);
+
+    // Save the PDF
+    const fileName = `service-ticket-${clientName.replace(/\s+/g, '-')}-${serviceDate}.pdf`;
+    pdf.save(fileName);
+
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    setError('Failed to generate PDF');
+  } finally {
+    setIsGeneratingPDF(false);
+  }
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1222,15 +1353,18 @@ const ServiceTicketModal: React.FC<ServiceTicketModalProps> = ({
             </div>
             {selectedBike && (
               <div className="mt-2">
-                <p className="text-white">
-                  <strong className="text-brand-gold">Bike:</strong> {
-                    bikes.find(bike => bike.id === selectedBike)?.make
-                  } {
-                    bikes.find(bike => bike.id === selectedBike)?.model
-                  } ({
-                    bikes.find(bike => bike.id === selectedBike)?.year
-                  })
-                </p>
+                {(() => {
+                  const selectedBikeData = bikes.find(bikeItem => bikeItem.id === selectedBike);
+                  return selectedBikeData ? (
+                    <p className="text-white">
+                      <strong className="text-brand-gold">Bike:</strong> {selectedBikeData.make} {selectedBikeData.model} ({selectedBikeData.year})
+                    </p>
+                  ) : (
+                    <p className="text-white">
+                      <strong className="text-brand-gold">Bike:</strong> Selected bike not found
+                    </p>
+                  );
+                })()}
               </div>
             )}
           </div>
@@ -1256,9 +1390,9 @@ const ServiceTicketModal: React.FC<ServiceTicketModalProps> = ({
                   className="w-full bg-brand-blue border border-brand-gold p-2 text-white"
                 >
                   <option value="">Select a bike (optional)</option>
-                  {bikes.map((bike) => (
-                    <option key={bike.id} value={bike.id}>
-                      {bike.make} {bike.model} ({bike.year})
+                  {bikes.map((bikeItem) => (
+                    <option key={bikeItem.id} value={bikeItem.id}>
+                      {bikeItem.make} {bikeItem.model} ({bikeItem.year})
                     </option>
                   ))}
                 </select>

@@ -1,1 +1,10 @@
-/* /index.html 200
+# Handle SPA routing - redirect all non-file requests to index.html
+/*    /index.html   200
+
+# Security headers
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: document-domain=()
+  Content-Security-Policy: default-src 'self' https://*.supabase.co https://*.shopifycdn.com https://*.myshopify.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.shopifycdn.com https://*.myshopify.com; style-src 'self' 'unsafe-inline' https://*.shopifycdn.com; img-src 'self' data: https://* blob:; font-src 'self' data: https://*.shopifycdn.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.shopifycdn.com https://*.myshopify.com; frame-src https://*.myshopify.com; frame-ancestors 'none';
