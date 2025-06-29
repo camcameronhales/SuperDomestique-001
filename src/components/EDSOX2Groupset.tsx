@@ -1,9 +1,16 @@
-import React from 'react';
-import { ArrowLeft, Cog } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, Cog, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const EDSOX2Groupset: React.FC = () => {
   const navigate = useNavigate();
+  const [showEnquiryForm, setShowEnquiryForm] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    mobile: '',
+    notes: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleReturn = () => {
     navigate('/shop');
@@ -15,14 +22,64 @@ const EDSOX2Groupset: React.FC = () => {
     }, 100);
   };
 
+  const handleEnquirySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.email && !formData.mobile) {
+      alert('Please provide either an email address or mobile number.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const subject = `Product Enquiry: ${product.name}`;
+    const body = `
+Product: ${product.name}
+RRP: $${product.price.toLocaleString()}
+Sale Price: $${product.salePrice.toLocaleString()}
+
+Product Description:
+${product.description}
+
+Customer Contact Information:
+Email: ${formData.email || 'Not provided'}
+Mobile: ${formData.mobile || 'Not provided'}
+
+Customer Notes:
+${formData.notes || 'No additional notes'}
+    `.trim();
+
+    const mailtoLink = `mailto:info@superdomestique.vip?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    
+    window.location.href = mailtoLink;
+    
+    // Reset form and close modal
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setShowEnquiryForm(false);
+      setFormData({ email: '', mobile: '', notes: '' });
+    }, 1000);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+  }, []);
+
   const product = {
     id: 'wheeltop-eds-ox2',
     name: 'WHEELTOP EDS OX2.0 - Mountain Bike',
     description: 'High-performance wireless electronic shifting system optimized for mountain biking, offering precise gear changes in demanding conditions.',
-    price: 700.00,
+    price: 800,
+    salePrice: 720,
     features: [
       'Wireless 1x 3-14 speed compatibility',
-      'Gravel-specific gearing options',
+      'MTB-specific gearing options',
       '75mm cage for 10-46T',
       '93mm cage for 10-52T',
       'Extended battery life',
@@ -42,20 +99,35 @@ const EDSOX2Groupset: React.FC = () => {
       'Minimum Cassette: 10-42T',
       'Chain Compatibility: 11/12-speed'
     ],
+    // Fixed: Using public URLs instead of signed URLs
     images: [
-      'https://aonppfwqveuzgesogqyi.supabase.co/storage/v1/object/sign/super%20domestique/COMPONENTS/GROUPSETS/OX/EDS_OX2.0.webp?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5Xzc0MTU1NzNhLTQyZTAtNDU3Yy1iYTk2LTMwNTAwMTdjZmI2ZiJ9.eyJ1cmwiOiJzdXBlciBkb21lc3RpcXVlL0NPTVBPTkVOVFMvR1JPVVBTRVRTL09YL0VEU19PWDIuMC53ZWJwIiwiaWF0IjoxNzQ3NDYxMjY4LCJleHAiOjIwMzEyODUyNjh9.snl6_py1nmxNRJ2wH73op_AZJ9eN1VwXUBV9DcJKz40',
-      'https://aonppfwqveuzgesogqyi.supabase.co/storage/v1/object/sign/super%20domestique/COMPONENTS/GROUPSETS/OX/Frame_48.webp?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5Xzc0MTU1NzNhLTQyZTAtNDU3Yy1iYTk2LTMwNTAwMTdjZmI2ZiJ9.eyJ1cmwiOiJzdXBlciBkb21lc3RpcXVlL0NPTVBPTkVOVFMvR1JPVVBTRVRTL09YL0ZyYW1lXzQ4LndlYnAiLCJpYXQiOjE3NDc0NjEyOTUsImV4cCI6MjAzMTI4NTI5NX0.eFHXFvpsWnkfvOkRx6u2R3t3efSLYoTWtIEndgZx_DE',
-      'https://aonppfwqveuzgesogqyi.supabase.co/storage/v1/object/sign/super%20domestique/COMPONENTS/GROUPSETS/OX/OX2.0-93mm-image_3.webp?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5Xzc0MTU1NzNhLTQyZTAtNDU3Yy1iYTk2LTMwNTAwMTdjZmI2ZiJ9.eyJ1cmwiOiJzdXBlciBkb21lc3RpcXVlL0NPTVBPTkVOVFMvR1JPVVBTRVRTL09YL09YMi4wLTkzbW0taW1hZ2VfMy53ZWJwIiwiaWF0IjoxNzQ3NDYxMzE5LCJleHAiOjIwMzEyODUzMTl9.Swx_zbF0CBPw7pyfN6tKxU9SEypM9UP7gFQyDMjtgRA'
-    ]
+      'https://aonppfwqveuzgesogqyi.supabase.co/storage/v1/object/public/super%20domestique/COMPONENTS/GROUPSETS/OX/EDS_OX2.0.webp',
+      'https://aonppfwqveuzgesogqyi.supabase.co/storage/v1/object/public/super%20domestique/COMPONENTS/GROUPSETS/OX/Frame_48.webp',
+      'https://aonppfwqveuzgesogqyi.supabase.co/storage/v1/object/public/super%20domestique/COMPONENTS/GROUPSETS/OX/OX2.0-93mm-image_3.webp'
+    ],
+    backgroundImage: 'https://aonppfwqveuzgesogqyi.supabase.co/storage/v1/object/public/super%20domestique/COMPONENTS/GROUPSETS/1a.jpg'
   };
 
   return (
     <div className="min-h-screen bg-brand-blue flex flex-col">
       <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
         <img 
-          src="https://aonppfwqveuzgesogqyi.supabase.co/storage/v1/object/sign/super%20domestique/COMPONENTS/GROUPSETS/1a.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5Xzc0MTU1NzNhLTQyZTAtNDU3Yy1iYTk2LTMwNTAwMTdjZmI2ZiJ9.eyJ1cmwiOiJzdXBlciBkb21lc3RpcXVlL0NPTVBPTkVOVFMvR1JPVVBTRVRTLzFhLmpwZyIsImlhdCI6MTc0Njc1NDg5NywiZXhwIjoyMDYyMTE0ODk3fQ.nQx28-Eg3wemDP0WDqJSUUbmwj46BFCJptbC8V7doFM"
+          src={encodeURI(product.backgroundImage)}
           alt="Electronic groupset background"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover opacity-0"
+          crossOrigin="anonymous"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
+          onLoad={(e) => {
+            e.currentTarget.style.opacity = '1';
+            e.currentTarget.style.transition = 'opacity 0.5s ease-in-out';
+          }}
+          onError={(e) => {
+            console.log(`Failed to load background image: ${product.backgroundImage}`);
+            e.currentTarget.style.display = 'none';
+          }}
         />
         <div className="absolute inset-0 bg-brand-blue bg-opacity-90"></div>
       </div>
@@ -87,10 +159,28 @@ const EDSOX2Groupset: React.FC = () => {
               {product.images.map((image, index) => (
                 <div key={index} className="aspect-square overflow-hidden relative">
                   <div className="absolute inset-0 bg-white"></div>
+                  <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
                   <img 
-                    src={image}
+                    src={encodeURI(image)}
                     alt={`${product.name} - Image ${index + 1}`}
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 opacity-0"
+                    crossOrigin="anonymous"
+                    loading={index < 3 ? "eager" : "lazy"}
+                    decoding="async"
+                    fetchPriority={index < 3 ? "high" : "low"}
+                    onLoad={(e) => {
+                      e.currentTarget.style.opacity = '1';
+                      e.currentTarget.style.transition = 'opacity 0.3s ease-in-out';
+                    }}
+                    onError={(e) => {
+                      console.log(`Failed to load image: ${image}`);
+                      // Try the original URL if encoded version fails
+                      if (e.currentTarget.src === encodeURI(image)) {
+                        e.currentTarget.src = image;
+                      } else {
+                        e.currentTarget.style.display = 'none';
+                      }
+                    }}
                   />
                   <div className="absolute inset-0 bg-brand-blue bg-opacity-30 group-hover:bg-opacity-0 transition-opacity duration-300"></div>
                 </div>
@@ -98,9 +188,12 @@ const EDSOX2Groupset: React.FC = () => {
             </div>
             
             <div className="space-y-4">
-              <div className="flex justify-between items-start">
-                <h3 className="text-brand-gold text-2xl">{product.name}</h3>
-                <span className="text-brand-gold text-xl">${product.price.toLocaleString()}</span>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-4">
+                  <h3 className="text-brand-gold text-2xl">{product.name}</h3>
+                  <p className="text-brand-gold text-xl">RRP ${product.price.toLocaleString()}</p>
+                </div>
+                <p className="text-red-500 text-xl font-semibold">Sale ${product.salePrice.toLocaleString()}</p>
               </div>
               
               <p className="text-gray-300">{product.description}</p>
@@ -131,17 +224,115 @@ const EDSOX2Groupset: React.FC = () => {
                 </div>
               </div>
               
-              <div className="pt-4">
-                <button 
-                  className="w-full px-4 py-2 border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-blue transition-all duration-300"
+              <div className="pt-4 space-y-3">
+                <button
+                  onClick={() => setShowEnquiryForm(true)}
+                  className="w-full bg-brand-gold hover:bg-yellow-600 text-brand-blue font-semibold py-3 px-6 transition-colors duration-300"
                 >
-                  ENQUIRE NOW
+                  Enquire Now
                 </button>
+                <a
+                  href="tel:+61456576896"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 transition-colors duration-300 block text-center"
+                >
+                  Call +61 456 576 896
+                </a>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Enquiry Form Modal */}
+      {showEnquiryForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-brand-blue border border-brand-gold p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-brand-gold text-xl font-semibold">Product Enquiry</h3>
+              <button
+                onClick={() => setShowEnquiryForm(false)}
+                className="text-brand-gold hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <p className="text-brand-gold font-semibold">{product.name}</p>
+              <p className="text-gray-300 text-sm">RRP ${product.price.toLocaleString()} | Sale ${product.salePrice.toLocaleString()}</p>
+            </div>
+
+            <form onSubmit={handleEnquirySubmit} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-brand-gold text-sm font-medium mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 bg-gray-800 text-white border border-gray-600 focus:border-brand-gold focus:outline-none"
+                  placeholder="your.email@example.com"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="mobile" className="block text-brand-gold text-sm font-medium mb-2">
+                  Mobile Number
+                </label>
+                <input
+                  type="tel"
+                  id="mobile"
+                  name="mobile"
+                  value={formData.mobile}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 bg-gray-800 text-white border border-gray-600 focus:border-brand-gold focus:outline-none"
+                  placeholder="+61 xxx xxx xxx"
+                />
+              </div>
+
+              <p className="text-gray-400 text-xs">
+                * Please provide either email or mobile number
+              </p>
+
+              <div>
+                <label htmlFor="notes" className="block text-brand-gold text-sm font-medium mb-2">
+                  Additional Notes (Optional)
+                </label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  rows={4}
+                  className="w-full px-3 py-2 bg-gray-800 text-white border border-gray-600 focus:border-brand-gold focus:outline-none resize-none"
+                  placeholder="Any specific requirements, questions, or additional information..."
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowEnquiryForm(false)}
+                  className="flex-1 px-4 py-2 bg-gray-600 text-white hover:bg-gray-700 transition-colors"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-brand-gold text-brand-blue font-semibold hover:bg-yellow-600 transition-colors disabled:opacity-50"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Enquiry'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

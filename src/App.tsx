@@ -170,6 +170,12 @@ const MainContent: React.FC = () => {
                   +61 456 576 896
                 </a>
               </div>
+              <button 
+                onClick={() => navigate('/shop')}
+                className="text-sm px-8 py-3 border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-blue transition-all duration-300"
+              >
+                SHOP PREMIUM COMPONENTS
+              </button>
             </div>
           </div>
         </section>
